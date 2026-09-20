@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#090a0d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LIFE = GAME">
+<title>LIFE = GAME</title>
+<link rel="manifest" href="manifest.json">
+<style>
+:root{--bg:#090a0d;--card:#121419;--card2:#191c23;--line:#292d36;--text:#f6f7f9;--muted:#8f96a3;--good:#dfe3e9;--bad:#ff5c64;--green:#b9f6ca}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Inter,system-ui,sans-serif}
+body{min-height:100dvh;overflow-x:hidden}
+button,input{font:inherit}
+button{touch-action:manipulation}
+.app{max-width:560px;margin:auto;padding:calc(env(safe-area-inset-top) + 12px) 14px calc(env(safe-area-inset-bottom) + 22px)}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.logo{font-size:24px;font-weight:900;letter-spacing:-.06em}.subtitle{font-size:11px;color:var(--muted);margin-top:2px}
+.icon{width:42px;height:42px;border:1px solid var(--line);background:var(--card);color:#fff;border-radius:13px}
+.hero{background:linear-gradient(180deg,#15171d,#101217);border:1px solid var(--line);border-radius:25px;padding:17px;position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;width:240px;height:240px;border-radius:50%;right:-130px;top:-130px;background:rgba(255,255,255,.035)}
+.bar-area{height:440px;display:flex;justify-content:center;position:relative}
+.bar{position:relative;width:62px;height:425px;margin-top:4px;background:#08090c;border:2px solid #333741;border-radius:32px;overflow:hidden;box-shadow:inset 0 0 20px #000}
+.fill{position:absolute;bottom:0;left:0;width:100%;height:0;background:linear-gradient(180deg,#fff,#cfd5de);transition:height .65s cubic-bezier(.2,.8,.2,1)}
+.tick{position:absolute;left:78px;right:0;display:flex;align-items:center;gap:8px;color:#777e8a;font-size:9px;white-space:nowrap}.tick:before{content:"";height:1px;width:22px;background:#383c45}
+.t1{bottom:25%}.t2{bottom:50%}.t3{bottom:75%}.t4{bottom:99%}
+.center-stats{position:absolute;left:0;right:0;bottom:18px;text-align:center;pointer-events:none}
+.xp{font-size:49px;font-weight:900;letter-spacing:-.07em}.xp small{font-size:17px;letter-spacing:0;color:var(--muted)}
+.progress{height:5px;background:#292d34;border-radius:99px;margin:10px 7px 0;overflow:hidden}.progress i{display:block;height:100%;width:0;background:#fff;transition:width .5s}
+.rank{margin-top:13px;padding:13px;border-radius:16px;background:var(--card2);border:1px solid var(--line)}
+.rank-title{font-size:19px;font-weight:850}.rank-desc{font-size:12px;line-height:1.4;color:var(--muted);margin-top:3px}
+.quote{text-align:center;color:#aeb4bf;font-size:11px;letter-spacing:.08em;margin-top:12px}
+.section{margin-top:13px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:14px}
+.section-title{text-transform:uppercase;color:#858c99;font-size:10px;letter-spacing:.14em;font-weight:800;margin-bottom:10px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.action{min-height:76px;border:1px solid var(--line);background:#0f1115;color:#fff;border-radius:15px;padding:11px;text-align:left}
+.action:active{transform:scale(.98);background:#1a1d23}
+.a-top{display:flex;justify-content:space-between;gap:4px}.a-name{font-weight:750;font-size:13px}.plus{font-weight:900;font-size:13px}.minus{color:var(--bad)}
+.hint{display:block;color:var(--muted);font-size:10px;margin-top:4px}
+.custom{display:grid;grid-template-columns:1fr 85px;gap:7px}.custom input{min-width:0;background:#0d0f13;color:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;outline:none}
+.add{grid-column:1/-1;border:0;border-radius:12px;padding:12px;background:#fff;color:#0a0b0e;font-weight:850}
+.nav{position:sticky;bottom:0;margin:13px -14px -22px;padding:10px 14px calc(env(safe-area-inset-bottom) + 8px);background:rgba(9,10,13,.88);backdrop-filter:blur(18px);border-top:1px solid #20232a;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.nav button{border:0;background:transparent;color:#777e8a;padding:8px;border-radius:12px;font-size:10px}.nav button.active{background:#191c22;color:#fff}
+.view{display:none}.view.active{display:block}
+.history-row{display:flex;justify-content:space-between;gap:8px;padding:11px 0;border-bottom:1px solid #252831}.history-row:last-child{border:0}
+.history-row small{display:block;color:var(--muted);font-size:9px;margin-top:3px}.amount{font-weight:900}.negative{color:var(--bad)}
+.stat{display:flex;justify-content:space-between;padding:13px 0;border-bottom:1px solid #252831}.stat:last-child{border:0}.stat span{color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:90px;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:#fff;color:#0a0b0e;padding:11px 15px;border-radius:99px;font-weight:900;font-size:13px;transition:.25s;z-index:10}.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:370px){.actions{grid-template-columns:1fr}.bar-area{height:410px}.bar{height:395px}.tick{left:70px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top">
+  <div><div class="logo">LIFE = GAME</div><div class="subtitle">26 100 XP → UNRECOGNIZABLE</div></div>
+  <button class="icon" id="reset" aria-label="Сброс">↺</button>
+</header>
+
+<main id="home" class="view active">
+<section class="hero">
+  <div class="bar-area">
+    <div class="bar"><div class="fill" id="fill"></div></div>
+    <div class="tick t1">6 525 · DISCIPLINE TEST</div>
+    <div class="tick t2">13 050 · HARD TIMES</div>
+    <div class="tick t3">19 575 · HOW DID YOU DO THAT?</div>
+    <div class="tick t4">26 100 · UNRECOGNIZABLE</div>
+    <div class="center-stats">
+      <div class="xp" id="xp">0 <small>XP</small></div>
+      <div class="progress"><i id="progress"></i></div>
+    </div>
+  </div>
+  <div class="rank"><div class="rank-title" id="rank">Pure Motivation</div><div class="rank-desc" id="desc">Ты только начинаешь. Превращай мотивацию в систему.</div></div>
+  <div class="quote">KEEP GOING · NO ZERO DAYS</div>
+</section>
+
+<section class="section">
+<div class="section-title">Quick XP</div>
+<div class="actions">
+<button class="action" data-xp="120" data-name="Daily Mission"><div class="a-top"><span class="a-name">Daily Mission</span><b>+120</b></div><span class="hint">Главная дневная миссия</span></button>
+<button class="action" data-xp="20" data-name="Учёба — 1 час"><div class="a-top"><span class="a-name">Учёба — 1 час</span><b>+20</b></div><span class="hint">За каждый полный час</span></button>
+<button class="action" data-xp="50" data-name="Income / Dropshipping"><div class="a-top"><span class="a-name">Income / Dropshipping</span><b>+50</b></div><span class="hint">Фокус на доход</span></button>
+<button class="action" data-xp="25" data-name="Gym / Training"><div class="a-top"><span class="a-name">Gym / Training</span><b>+25</b></div><span class="hint">Тренировка</span></button>
+<button class="action" data-xp="50" data-name="Positive Action"><div class="a-top"><span class="a-name">Positive Action</span><b>+50</b></div><span class="hint">Полезное действие</span></button>
+<button class="action" data-xp="-120" data-name="Bad Day"><div class="a-top"><span class="a-name">Bad Day</span><b class="minus">−120</b></div><span class="hint">Большой штраф</span></button>
+</div>
+</section>
+
+<section class="section">
+<div class="section-title">Custom XP</div>
+<div class="custom"><input id="label" placeholder="Что сделал?"><input id="amount" type="number" placeholder="+10"><button class="add" id="add">Добавить XP</button></div>
+</section>
+</main>
+
+<section id="history" class="view">
+<div class="section"><div class="section-title">История XP</div><div id="historyList"></div></div>
+</section>
+
+<section id="stats" class="view">
+<div class="section"><div class="section-title">Статистика</div>
+<div class="stat"><span>Всего XP</span><b id="sxp">0</b></div>
+<div class="stat"><span>До цели</span><b id="left">26 100</b></div>
+<div class="stat"><span>Прогресс</span><b id="spct">0%</b></div>
+<div class="stat"><span>Действий</span><b id="actionsCount">0</b></div>
+</div>
+<div class="section"><div class="section-title">Правила</div>
+<div class="stat"><span>Daily Mission</span><b>+120</b></div>
+<div class="stat"><span>Учёба</span><b>+20 / час</b></div>
+<div class="stat"><span>Bad Day</span><b class="negative">−120</b></div>
+</div>
+</section>
+
+<nav class="nav">
+<button class="active" data-view="home">⌂<br>Главная</button>
+<button data-view="history">◷<br>История</button>
+<button data-view="stats">◈<br>Статы</button>
+</nav>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const GOAL=26100, KEY="life_game_mobile_full_v1";
+let state=JSON.parse(localStorage.getItem(KEY)||"null")||{xp:0,log:[]};
+const ranks=[
+[0,6524,"Pure Motivation","Ты только начинаешь. Превращай мотивацию в систему."],
+[6525,13049,"Discipline Test","Мотивация уже не главный двигатель. Проверяется дисциплина."],
+[13050,19574,"Hard Times","Результат может быть далеко. Ты продолжаешь двигаться."],
+[19575,26099,"How did you do that?","Изменения уже заметны. Люди начинают спрашивать, как."],
+[26100,Infinity,"Unrecognizable","Ты достиг цели. Это новая версия тебя."]
+];
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function rank(){return ranks.find(r=>state.xp>=r[0]&&state.xp<=r[1])||ranks[0]}
+function toast(t){const x=document.getElementById("toast");x.textContent=t;x.classList.add("show");setTimeout(()=>x.classList.remove("show"),1000)}
+function addXP(amount,name){
+ let before=state.xp; state.xp=Math.max(0,Math.min(GOAL,state.xp+Number(amount))); let real=state.xp-before;
+ if(real){state.log.push({amount:real,name,time:Date.now()});if(state.log.length>300)state.log.shift();save();render();toast((real>0?"+":"")+real+" XP")}
+}
+function render(){
+ let p=state.xp/GOAL*100,r=rank();
+ document.getElementById("xp").innerHTML=state.xp.toLocaleString("ru-RU")+' <small>XP</small>';
+ document.getElementById("fill").style.height=p+"%";document.getElementById("progress").style.width=p+"%";
+ document.getElementById("rank").textContent=r[2];document.getElementById("desc").textContent=r[3];
+ document.getElementById("sxp").textContent=state.xp.toLocaleString("ru-RU");
+ document.getElementById("left").textContent=Math.max(0,GOAL-state.xp).toLocaleString("ru-RU");
+ document.getElementById("spct").textContent=p.toFixed(1)+"%";document.getElementById("actionsCount").textContent=state.log.length;
+ const list=document.getElementById("historyList");list.innerHTML="";
+ [...state.log].reverse().forEach(x=>{let d=document.createElement("div");d.className="history-row";d.innerHTML='<div>'+esc(x.name)+'<small>'+new Date(x.time).toLocaleString("ru-RU")+'</small></div><div class="amount '+(x.amount<0?'negative':'')+'">'+(x.amount>0?'+':'')+x.amount+' XP</div>';list.appendChild(d)});
+}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+document.querySelectorAll(".action").forEach(b=>b.onclick=()=>addXP(b.dataset.xp,b.dataset.name));
+document.getElementById("add").onclick=()=>{let a=Number(document.getElementById("amount").value),n=document.getElementById("label").value.trim()||"Custom XP";if(a){addXP(a,n);document.getElementById("amount").value="";document.getElementById("label").value=""}};
+document.getElementById("reset").onclick=()=>{if(confirm("Сбросить весь прогресс?")){state={xp:0,log:[]};save();render()}};
+document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".nav button").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));document.getElementById(b.dataset.view).classList.add("active");});
+render();
+</script>
+</body>
+</html>
